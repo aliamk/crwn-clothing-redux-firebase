@@ -15,12 +15,14 @@ const config = {
 
 export const createUserProfileDocument = async (userAuth, additionalData) => {
   if(!userAuth) return; // if NULL is returned (user not signed in), exit function
+
+  /* if userAuth is true, find location of the data and its ID */
   const userRef = firestore.doc(`users/${ userAuth.uid }`) 
   
-  /* This will produce the EXISTS property + will check if the authenticated user already 
+  /* This will produce the EXISTS property + will check if the authenticated user data already 
   exists in the database */
   const snapShot = await userRef.get() 
-
+  
   if( !snapShot.exists ) {
     const { displayName, email } = userAuth // If snapshot is false (user is not saved in database), then create it
     const createdAt = new Date()
@@ -40,6 +42,12 @@ export const createUserProfileDocument = async (userAuth, additionalData) => {
 }
 
 firebase.initializeApp(config)
+
+// Create new util to add our shop data to the Firebase database
+export const addCollectionAndDocuments = (collectionKey, objectsToAdd) => {
+  const collectionRef = firestore.collection(collectionKey)
+  console.log(collectionRef)
+}
 
 export const auth = firebase.auth()
 export const firestore = firebase.firestore()

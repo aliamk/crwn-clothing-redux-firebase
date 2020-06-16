@@ -1,7 +1,7 @@
 import { createSelector } from 'reselect'
 
 /* Don't need COLLECTION_ID_MAP now bc we've turned SHOP_DATA into an object
-(from of an array), and modified selectCollection below by removing 
+(from an array), and modified selectCollection below by removing 
 .find:
 
 const COLLECTION_ID_MAP = {
@@ -28,7 +28,7 @@ export const selectCollectionsforPreview = createSelector(
   collections => Object.keys(collections)
     .map(key => 
       collections[key]
-      )
+    )
 )
   
 /*

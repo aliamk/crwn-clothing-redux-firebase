@@ -12,10 +12,11 @@ import CheckoutPage from './pages/checkout/checkout.component'
 
 import Header from './components/header/header.component'
 
-import { auth, createUserProfileDocument } from './firebase/firebase.utils'
+import { auth, createUserProfileDocument, addCollectionAndDocuments } from './firebase/firebase.utils'
 
 import { setCurrentUser } from './redux/user/user.actions'
 import { selectCurrentUser } from './redux/user/user.selector'
+import { selectCollectionsforPreview } from './redux/shop/shop.selectors'
 
 
 class App extends React.Component {
@@ -23,7 +24,7 @@ class App extends React.Component {
   unsubscribeFromAuth = null  // To prevent memory leaks, we need to open and close the subscription
 
   componentDidMount() {
-    const {  setCurrentUser } = this.props
+    const {  setCurrentUser, collectionsArray } = this.props
     this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => { // firebase allows us to use their auth library methods instead of fetch
       if (userAuth) {   // if user signs-in validly
         const userRef = await createUserProfileDocument(userAuth)
@@ -36,7 +37,9 @@ class App extends React.Component {
           // console.log(this.state)
         })
       } 
-      setCurrentUser( userAuth )
+      setCurrentUser(userAuth);
+
+      addCollectionAndDocuments('collections', collectionsArray)
       
       createUserProfileDocument(userAuth)
       // console.log(user)
@@ -90,7 +93,8 @@ happens on the app component */
 })  */
 
 const mapStateToProps = createStructuredSelector({
-  currentUser: selectCurrentUser
+  currentUser: selectCurrentUser,
+  collectionsArray: selectCollectionsforPreview 
 })
 
 /* Dispatch assumes that every object that it receives 
@@ -103,6 +107,6 @@ const mapDispatchToProps = dispatch => ({
 })
 
 export default connect(
-  mapStateToProps /*this would be null if not for the sign-in redirect*/, 
+  mapStateToProps /* this would be null if not for the sign-in redirect */, 
   mapDispatchToProps 
 )(App);
