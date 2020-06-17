@@ -1,59 +1,82 @@
-import firebase from 'firebase/app'
-import 'firebase/firestore' // for the database
-import 'firebase/auth'  // for the authorisation
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+import 'firebase/auth';
 
 const config = {
-  apiKey: "AIzaSyCE8o3gtPNquPCj89EfRlgbVlCtEChYQSk",
-  authDomain: "crwn-db-949da.firebaseapp.com",
-  databaseURL: "https://crwn-db-949da.firebaseio.com",
-  projectId: "crwn-db-949da",
-  storageBucket: "crwn-db-949da.appspot.com",
-  messagingSenderId: "703367615173",
-  appId: "1:703367615173:web:4b8686cc8be509b48dd6ac",
-  measurementId: "G-XSCE9G9LR6"
-}
+  apiKey: 'AIzaSyCdHT-AYHXjF7wOrfAchX4PIm3cSj5tn14',
+  authDomain: 'crwn-db.firebaseapp.com',
+  databaseURL: 'https://crwn-db.firebaseio.com',
+  projectId: 'crwn-db',
+  storageBucket: 'crwn-db.appspot.com',
+  messagingSenderId: '850995411664',
+  appId: '1:850995411664:web:7ddc01d597846f65'
+};
+
+firebase.initializeApp(config);
 
 export const createUserProfileDocument = async (userAuth, additionalData) => {
-  if(!userAuth) return; // if NULL is returned (user not signed in), exit function
+  if (!userAuth) return;
 
-  /* if userAuth is true, find location of the data and its ID */
-  const userRef = firestore.doc(`users/${ userAuth.uid }`) 
-  
-  /* This will produce the EXISTS property + will check if the authenticated user data already 
-  exists in the database */
-  const snapShot = await userRef.get() 
-  
-  if( !snapShot.exists ) {
-    const { displayName, email } = userAuth // If snapshot is false (user is not saved in database), then create it
-    const createdAt = new Date()
+  const userRef = firestore.doc(`users/${userAuth.uid}`);
 
+  const snapShot = await userRef.get();
+
+  if (!snapShot.exists) {
+    const { displayName, email } = userAuth;
+    const createdAt = new Date();
     try {
-      await userRef.set({   // Create the user (a new document) in the database
+      await userRef.set({
         displayName,
         email,
         createdAt,
         ...additionalData
-      })
-    } catch(error) {
-        console.log( 'error creating user', error.message )
+      });
+    } catch (error) {
+      console.log('error creating user', error.message);
     }
   }
-  return userRef
-}
 
-firebase.initializeApp(config)
+  return userRef;
+};
 
-// Create new util to add our shop data to the Firebase database
-export const addCollectionAndDocuments = (collectionKey, objectsToAdd) => {
-  const collectionRef = firestore.collection(collectionKey)
-  console.log(collectionRef)
-}
+export const addCollectionAndDocuments = async (
+  collectionKey,
+  objectsToAdd
+) => {
+  const collectionRef = firestore.collection(collectionKey);
 
-export const auth = firebase.auth()
-export const firestore = firebase.firestore()
+  const batch = firestore.batch();
+  objectsToAdd.forEach(obj => {
+    const newDocRef = collectionRef.doc();
+    batch.set(newDocRef, obj);
+  });
 
-const provider = new firebase.auth.GoogleAuthProvider()
-provider.setCustomParameters({ prompt: 'select_account' })
-export const signInWithGoogle = () => auth.signInWithPopup(provider)
+  return await batch.commit();
+};
 
-export default firebase
+export const convertCollectionsSnapshotToMap = collections => {
+  const transformedCollection = collections.docs.map(doc => {
+    const { title, items } = doc.data();
+
+    return {
+      routeName: encodeURI(title.toLowerCase()),
+      id: doc.id,
+      title,
+      items
+    };
+  });
+
+  return transformedCollection.reduce((accumulator, collection) => {
+    accumulator[collection.title.toLowerCase()] = collection;
+    return accumulator;
+  }, {});
+};
+
+export const auth = firebase.auth();
+export const firestore = firebase.firestore();
+
+const provider = new firebase.auth.GoogleAuthProvider();
+provider.setCustomParameters({ prompt: 'select_account' });
+export const signInWithGoogle = () => auth.signInWithPopup(provider);
+
+export default firebase;

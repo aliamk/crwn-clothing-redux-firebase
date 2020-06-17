@@ -22,14 +22,16 @@ export const selectCollections = createSelector(
 
 /* For /shop: Convert the collections object into an array for selectCollections to use
 Get all the keys in object:collections and make an array
-Map over all the keys in the array and return all the values at those keys */
-export const selectCollectionsforPreview = createSelector(
+Map over all the keys in the array and return all the values at those keys 
+Firebase update: since moving data to firebase, we need to modify this to say: 
+If collections is null, then return an empty array/version of our objects 
+(collections page won't have any clothing items to show)
+*/
+export const selectCollectionsForPreview = createSelector(
   [selectCollections],
-  collections => Object.keys(collections)
-    .map(key => 
-      collections[key]
-    )
-)
+  collections =>
+    collections ? Object.keys(collections).map(key => collections[key]) : []
+);
   
 /*
 export const selectCollection = collectionUrlParam =>
@@ -43,9 +45,9 @@ createSelector(
 )
  REPLACED .FIND WITH BELOW CODE */
 
-export const selectCollection = collectionUrlParam =>
-createSelector(
-  [selectCollections],
-  collections => 
-    collections[collectionUrlParam] 
-)
+ // If the collections object is null, return an empty array 
+ export const selectCollection = collectionUrlParam =>
+ createSelector(
+   [selectCollections],
+   collections => (collections ? collections[collectionUrlParam] : null)
+ );
