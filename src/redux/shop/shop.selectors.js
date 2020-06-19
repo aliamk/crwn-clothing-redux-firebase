@@ -20,9 +20,10 @@ export const selectCollections = createSelector(
   shop => shop.collections
 )
 
-/* For /shop: Convert the collections object into an array for selectCollections to use
+/* For HOMEPAGE: Convert the collections object into an array for selectCollections to use
 Get all the keys in object:collections and make an array
 Map over all the keys in the array and return all the values at those keys 
+
 Firebase update: since moving data to firebase, we need to modify this to say: 
 If collections is null, then return an empty array/version of our objects 
 (collections page won't have any clothing items to show)
@@ -51,3 +52,24 @@ createSelector(
    [selectCollections],
    collections => (collections ? collections[collectionUrlParam] : null)
  );
+
+ // Modified for Redux Thunk
+ export const selectIsCollectionFetching = createSelector(
+   [selectShop],
+   shop => shop.isFetching
+ )
+
+ /* If our collections is loaded we'll get true 
+ From the shop.reducer, return shop.collections as a boolean value.  The default
+ value is null.  Double bangs will return true if our collections is loaded.  */
+ export const selectIsCollectionsLoaded = createSelector(
+   [selectShop],
+   shop => !!shop.collections
+ )
+
+//  Double bangs
+/* !!0 => false
+ !!'' => false
+ !!null => false
+ !!{} => true
+ */

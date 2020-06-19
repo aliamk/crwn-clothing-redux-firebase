@@ -107,6 +107,6 @@ const mapDispatchToProps = dispatch => ({
 })
 
 export default connect(
-  mapStateToProps /* this would be null if not for the sign-in redirect */, 
+  mapStateToProps, /* this would be null if not for the sign-in redirect */
   mapDispatchToProps 
 )(App);

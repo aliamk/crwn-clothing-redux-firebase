@@ -1,6 +1,6 @@
-import firebase from 'firebase/app';
-import 'firebase/firestore';
-import 'firebase/auth';
+import firebase from 'firebase/app' 
+import 'firebase/firestore'   // for the database
+import 'firebase/auth'  // for the authorisation
 
 const config = {
   apiKey: 'AIzaSyCdHT-AYHXjF7wOrfAchX4PIm3cSj5tn14',
@@ -10,73 +10,90 @@ const config = {
   storageBucket: 'crwn-db.appspot.com',
   messagingSenderId: '850995411664',
   appId: '1:850995411664:web:7ddc01d597846f65'
-};
+} 
 
-firebase.initializeApp(config);
+firebase.initializeApp(config) 
 
+/* STORE REGISTERED USERS IN FIREBASE'S COLLECTION: USERS */
 export const createUserProfileDocument = async (userAuth, additionalData) => {
-  if (!userAuth) return;
-
-  const userRef = firestore.doc(`users/${userAuth.uid}`);
-
-  const snapShot = await userRef.get();
+  if (!userAuth) return  // if NULL is returned (user not signed in), exit function
+  /* if userAuth is true, find location of the data and its ID */
+  const userRef = firestore.doc(`users/${userAuth.uid}`) 
+/* This will produce the EXISTS property + will check if the authenticated user data already 
+  exists in the database */
+  const snapShot = await userRef.get() 
 
   if (!snapShot.exists) {
-    const { displayName, email } = userAuth;
-    const createdAt = new Date();
+    const { displayName, email } = userAuth  // If snapshot is false (user is not saved in database), then create it
+    const createdAt = new Date() 
     try {
-      await userRef.set({
+      await userRef.set({  // Create the user (a new document) in the database
         displayName,
         email,
         createdAt,
         ...additionalData
-      });
+      }) 
     } catch (error) {
-      console.log('error creating user', error.message);
+      console.log('error creating user', error.message) 
     }
   }
 
-  return userRef;
-};
+  return userRef 
+} 
 
-export const addCollectionAndDocuments = async (
-  collectionKey,
-  objectsToAdd
-) => {
-  const collectionRef = firestore.collection(collectionKey);
+/* STORE SHOP_DATA IN FIREBASE'S COLLECTION: COLLECTIONS */
+export const addCollectionAndDocuments = async ( collectionKey, objectsToAdd ) => {
+  const collectionRef = firestore.collection(collectionKey) 
+  // console.log(collectionRef)
+  /* BATCH-WRITING: grouping all the calls into one big request  */
+  const batch = firestore.batch() 
+  objectsToAdd.forEach(obj => {  // don't use .map bc don't want a new array
+    const newDocRef = collectionRef.doc()   // get each doc at an empty string and randomly generate an ID
+    // console.log(newDocRef)
+    batch.set(newDocRef, obj)  // this will set the newDocRefs to the value: objects
+  }) 
 
-  const batch = firestore.batch();
-  objectsToAdd.forEach(obj => {
-    const newDocRef = collectionRef.doc();
-    batch.set(newDocRef, obj);
-  });
+  return await batch.commit()  // sends the requests and returns a PROMISE
+} 
 
-  return await batch.commit();
-};
-
+/* Want to receive the title and items from the  collections snapshot from shop.component 
+and convert the returned array into an object  */
 export const convertCollectionsSnapshotToMap = collections => {
   const transformedCollection = collections.docs.map(doc => {
-    const { title, items } = doc.data();
+    const { title, items } = doc.data() 
 
     return {
       routeName: encodeURI(title.toLowerCase()),
       id: doc.id,
       title,
       items
-    };
-  });
-
+    } 
+  }) 
+  // console.log(tranformedCollection)
   return transformedCollection.reduce((accumulator, collection) => {
-    accumulator[collection.title.toLowerCase()] = collection;
-    return accumulator;
-  }, {});
-};
+    accumulator[collection.title.toLowerCase()] = collection 
+    return accumulator 
+  }, {}) 
+} 
 
-export const auth = firebase.auth();
-export const firestore = firebase.firestore();
+export const auth = firebase.auth() 
+export const firestore = firebase.firestore() 
 
-const provider = new firebase.auth.GoogleAuthProvider();
-provider.setCustomParameters({ prompt: 'select_account' });
-export const signInWithGoogle = () => auth.signInWithPopup(provider);
+export const googleProvider = new firebase.auth.GoogleAuthProvider() 
+googleProvider.setCustomParameters({ prompt: 'select_account' }) 
+export const signInWithGoogle = () => auth.signInWithPopup(googleProvider) 
 
-export default firebase;
+export default firebase 
+
+/* export const convertCollectionsSnapshotToMap = (collections) => {
+  const transformedCollection = collections.docs.map(doc => {
+    const { title, items } = doc.data()
+  
+    return {
+      routeName: encodeURI(title.toLowerCase()),
+      id: doc.id,
+      title,
+      items
+    }
+  })
+  */
