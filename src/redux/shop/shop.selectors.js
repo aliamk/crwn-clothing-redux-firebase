@@ -13,12 +13,12 @@ const COLLECTION_ID_MAP = {
 }
 */
 
-const selectShop = state => state.shop
+const selectShop = state => state.shop;
 
 export const selectCollections = createSelector(
   [selectShop],
   shop => shop.collections
-)
+);
 
 /* For HOMEPAGE: Convert the collections object into an array for selectCollections to use
 Get all the keys in object:collections and make an array
@@ -55,17 +55,17 @@ createSelector(
 
  // Modified for Redux Thunk
  export const selectIsCollectionFetching = createSelector(
-   [selectShop],
-   shop => shop.isFetching
- )
+  [selectShop],
+  shop => shop.isFetching
+);
 
  /* If our collections is loaded we'll get true 
  From the shop.reducer, return shop.collections as a boolean value.  The default
  value is null.  Double bangs will return true if our collections is loaded.  */
  export const selectIsCollectionsLoaded = createSelector(
-   [selectShop],
-   shop => !!shop.collections
- )
+  [selectShop],
+  shop => !!shop.collections
+);
 
 //  Double bangs
 /* !!0 => false

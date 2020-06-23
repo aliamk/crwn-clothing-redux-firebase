@@ -76,6 +76,18 @@ export const convertCollectionsSnapshotToMap = collections => {
   }, {}) 
 } 
 
+/* For user persistence - this method returns a new Promise that saga can work with
+to get the userAuth object, then immediately unsubscribe.  Once unsubscribed, resolve with 
+the userAuth object. If it fails to resolve, then reject with an error */
+export const getCurrentUser = () => {
+  return new Promise((resolve, reject) => {
+    const unsubscribe = auth.onAuthStateChanged(userAuth => {
+      unsubscribe()
+      resolve(userAuth)
+    }, reject)
+  })
+}
+
 export const auth = firebase.auth() 
 export const firestore = firebase.firestore() 
 

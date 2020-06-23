@@ -1,4 +1,4 @@
-import { takeLatest, call, put } from 'redux-saga/effects' 
+import { takeLatest, call, put, all } from 'redux-saga/effects' 
 // takeEvery listens for every action of a specific type that is passed to it
 /* call is a method that takes a function/method as it's first argument, and 
 the second argument is the parameter that's passed into the first */
@@ -19,24 +19,34 @@ Get the CollectionRef to get the snapshot
 Replace the PROMISE pattern of .get().then() with the GENERATOR pattern
 Create the collectionsMap using 'call'
 */
-export function* fetchCollections() {
+export function* fetchCollectionsAsync() {
   try {
-    const collectionRef = firestore.collection('collections')
-    const snapshot = yield collectionRef.get()
-    const collectionsMap = yield call(convertCollectionsSnapshotToMap, snapshot)
-    yield put(fetchCollectionsSuccess(collectionsMap))
+    const collectionRef = firestore.collection('collections');
+    const snapshot = yield collectionRef.get();
+    const collectionsMap = yield call(
+      convertCollectionsSnapshotToMap,
+      snapshot
+    );
+    yield put(fetchCollectionsSuccess(collectionsMap));
   } catch (error) {
-    yield put(fetchCollectionsFailure(error.message))
+    yield put(fetchCollectionsFailure(error.message));
   }
 }
 
-//  Will pause everytime a specific action comes in
-export function* onFetchCollectionsStart() {
+//  LISTENER: Will pause everytime a specific action comes in
+export function* fetchCollectionsStart() {
   yield takeLatest(
-    ShopActionTypes.FETCH_COLLECTIONS_START, 
-    fetchCollections
-  )
+    ShopActionTypes.FETCH_COLLECTIONS_START,
+    fetchCollectionsAsync
+  );
 }
+
+// Base SHOPSAGA 
+export function* shopSagas() {
+  yield all([call(fetchCollectionsStart)]);
+}
+
+
 
 /* REFACTORED FROM THE PROMISE PATTERN TO THE GENERATOR PATTER ABOVE
 const collectionRef = firestore.collection('collections')

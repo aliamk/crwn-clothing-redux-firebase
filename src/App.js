@@ -14,15 +14,17 @@ import Header from './components/header/header.component'
 
 //import { auth, createUserProfileDocument /*addCollectionAndDocuments*/ } from './firebase/firebase.utils' 
 
-import { setCurrentUser } from './redux/user/user.actions' 
+// import { setCurrentUser } from './redux/user/user.actions' 
 import { selectCurrentUser } from './redux/user/user.selectors' 
 // import { selectCollectionsForPreview } from './redux/shop/shop.selectors' 
+import { checkUserSession } from './redux/user/user.actions'
 
 class App extends React.Component {
   unsubscribeFromAuth = null 
 
   componentDidMount() {
-    const { /*setCurrentUser /*collectionsArray*/ } = this.props 
+    const { checkUserSession } = this.props 
+    checkUserSession()
 
     // REPLACING WITH SAGA CODE IN USER.SAGAS.JS
   /*  this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
@@ -99,12 +101,15 @@ const mapStateToProps = createStructuredSelector({
 is an action and passes it on to the reducers */
 
 /* When a user signs-in, the user info is dispatched to the reducers via 
-user.action and updates the state from null to the user */
+user.action and updates the state from null to the user 
+For user persistence, adding checkUserSession which is just a call to dispatch it to 
+the user.reducer
+*/
 const mapDispatchToProps = dispatch => ({
-  setCurrentUser: user => dispatch(setCurrentUser(user))
-}) 
+  checkUserSession: () => dispatch(checkUserSession())
+})
 
 export default connect(
   mapStateToProps,  /* this would be null if not for the sign-in redirect */
-  mapDispatchToProps
+  mapDispatchToProps 
 )(App) 

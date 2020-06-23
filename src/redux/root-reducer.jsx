@@ -1,5 +1,4 @@
 import { combineReducers } from 'redux'
-
 // Tell Redux-Persist that u want to use localStorage as default storage
 import { persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'

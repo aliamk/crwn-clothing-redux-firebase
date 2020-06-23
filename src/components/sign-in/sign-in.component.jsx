@@ -4,8 +4,8 @@ import { connect } from 'react-redux'
 import FormInput from '../form-input/form-input.component'
 import CustomButton from '../custom-button/custom-button.component'
 
-import { auth, signInWithGoogle } from '../../firebase/firebase.utils'
-import { googleSignInStart } from '../../redux/user/user.actions'
+// import { auth, signInWithGoogle } from '../../firebase/firebase.utils'
+import { googleSignInStart, emailSignInStart } from '../../redux/user/user.actions'
 
 // import './sign-in.styles.scss'
 
@@ -27,15 +27,18 @@ class SignIn extends React.Component {
 
   handleSubmit = async event => {
     event.preventDefault()
-
+    const { emailSignInStart } = this.props // Added for Saga
     const { email, password } = this.state
 
+    emailSignInStart(email, password) // Added for Saga, need to call it here
+
+    /*REPLACED BY SAGA
     try {
       await auth.signInWithEmailAndPassword(email, password)
       this.setState({ email: '', password: '' })
     } catch (error) {
       console.log(error)
-    }
+    } */
   }
 
   handleChange = event => {
@@ -80,8 +83,11 @@ class SignIn extends React.Component {
   }
 }
 
+/* 1. googleSignInStart just needs to be executed
+2. emailSignInStart needs to send the data object as keys to values */
 const mapDispatchToProps = dispatch => ({
-  googleSignInStart: () => dispatch(googleSignInStart())
+  googleSignInStart: () => dispatch(googleSignInStart()),
+  emailSignInStart: (email, password) => dispatch(emailSignInStart({ email, password }))
 })
 
 export default connect(null, mapDispatchToProps)(SignIn)

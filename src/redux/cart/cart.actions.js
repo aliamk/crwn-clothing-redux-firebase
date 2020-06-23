@@ -22,3 +22,8 @@ export const clearItemFromCart = item => ({
   type: CartActionTypes.CLEAR_ITEM_FROM_CART,
   payload: item
 })
+
+// SAGA: Clear the cart when user signs out
+export const clearCart = () => ({
+  type: CartActionTypes.CLEAR_CART
+})

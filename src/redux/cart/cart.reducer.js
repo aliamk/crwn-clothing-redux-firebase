@@ -10,9 +10,10 @@ const INITIAL_STATE = {
 // 1. Keep the dropdown hidden unless the TOGGLE action is triggered
 // 2. Keep the cart empty (default state) unless the action (AddToCart button) is triggered
 // 2. 'state.cartItems, action.payload' = existing cart items and new cart items
-/* 3. Filter over cartItems IDs, REMOVE 1 from an item's quantity if the IDs match */
+// 3. Filter over cartItems IDs, REMOVE 1 from an item's quantity if the IDs match
 /* 4. Filter over cartItems IDs, completely CLEAR the items that match
  and keep the ones that don't match the ID */
+ 
 const cartReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case CartActionTypes.TOGGLE_CART_HIDDEN:
@@ -35,6 +36,11 @@ const cartReducer = (state = INITIAL_STATE, action) => {
         ...state,
         cartItems: state.cartItems.filter(
           cartItem => cartItem.id!== action.payload.id)
+      }
+    case CartActionTypes.CLEAR_CART:
+      return {
+        ...state,
+        cartItems: []
       }
       default:
         return state
